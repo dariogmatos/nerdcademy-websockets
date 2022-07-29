@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="../static/css/style.css">
+</head>
+<body>
+    <div id="app">
+        <form :action="sendMessage" @submit.prevent>
+            <input v-model="message" type="text">
+            <input type="submit" value="Send" @click="sendMessage">
+        </form>
+        <!-- <p>
+            {{ message }}
+        </p> -->
+        <div v-if="showMsg">
+            <h3> message in a bottle</h3>
+            <p>
+                {{ rMessage }}
+            </p>
+            <button @click="showMsg = !showMsg">
+                Dismiss
+            </button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+    <script>
+        const app = new Vue ({
+            el: '#app',
+            data() {
+                return {
+                    message: "",
+                    socket: null,
+                    rMessage: "",
+                    showMsg: false,
+                }
+            },
+            mounted() {
+                this.socket = new WebSocket("ws://localhost:9100/socket"),
+                this.socket.onmessage = (msg) => {
+                    this.acceptMsg(msg)
+                }
+            },
+            methods: {
+                sendMessage() {
+                    let msg = {
+                        "greeting": this.message
+                    }
+                    this.socket.send(JSON.stringify(msg))
+                },
+                acceptMsg(msg) {
+                    this.rMessage = msg.data
+                    this.showMsg = true
+                }
+            }
+        })
+    </script>
+</body>
+</html>
+
